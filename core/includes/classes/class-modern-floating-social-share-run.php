@@ -113,27 +113,27 @@ class Modern_Floating_Social_Share_Run{
 	 *
 	 * @return	void
 	 */
-	public function my_demo_ajax_call_callback() {
-		check_ajax_referer( 'your-nonce-name', 'ajax_nonce_parameter' );
+	// public function my_demo_ajax_call_callback() {
+	// 	check_ajax_referer( 'your-nonce-name', 'ajax_nonce_parameter' );
 
-		$demo_data = isset( $_REQUEST['demo_data'] ) ? sanitize_text_field( $_REQUEST['demo_data'] ) : '';
-		$response = array( 'success' => false );
+	// 	$demo_data = isset( $_REQUEST['demo_data'] ) ? sanitize_text_field( $_REQUEST['demo_data'] ) : '';
+	// 	$response = array( 'success' => false );
 
-		if ( ! empty( $demo_data ) ) {
-			$response['success'] = true;
-			$response['msg'] = __( 'The value was successfully filled.', 'modern-floating-social-share' );
-		} else {
-			$response['msg'] = __( 'The sent value was empty.', 'modern-floating-social-share' );
-		}
+	// 	if ( ! empty( $demo_data ) ) {
+	// 		$response['success'] = true;
+	// 		$response['msg'] = __( 'The value was successfully filled.', 'modern-floating-social-share' );
+	// 	} else {
+	// 		$response['msg'] = __( 'The sent value was empty.', 'modern-floating-social-share' );
+	// 	}
 
-		if( $response['success'] ){
-			wp_send_json_success( $response );
-		} else {
-			wp_send_json_error( $response );
-		}
+	// 	if( $response['success'] ){
+	// 		wp_send_json_success( $response );
+	// 	} else {
+	// 		wp_send_json_error( $response );
+	// 	}
 
-		die();
-	}
+	// 	die();
+	// }
 
 	/**
 	 * The callback function for Socialshare_floating_button
@@ -149,7 +149,7 @@ class Modern_Floating_Social_Share_Run{
 		$wa_number = get_option('social_share_link', '#');
 		$wa_msg = get_option('social_share_msg', 'Hi');
 		if($wa_number != '#'):
-		echo '<a href="https://web.whatsapp.com/send?text='.$wa_msg.'&phone='.$wa_number.'" class="floating-btn share" target="_blank">
+		echo esc_html('<a href="https://web.whatsapp.com/send?text='.esc_attr($wa_msg).'&phone='.esc_attr($wa_number).'" class="floating-btn share" target="_blank">
 					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="82" height="82" viewBox="0 0 82 82">
 						<defs>
 						<filter id="Path_2145" x="0" y="0" width="82" height="82" filterUnits="userSpaceOnUse">
@@ -168,7 +168,7 @@ class Modern_Floating_Social_Share_Run{
 						<circle id="Ellipse_31" data-name="Ellipse 31" cx="5" cy="5" r="5" transform="translate(1458 -401)" fill="red"/>
 						</g>
 					</svg>
-				</a>';
+				</a>');
 		endif;
 
 
@@ -184,12 +184,22 @@ class Modern_Floating_Social_Share_Run{
 			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 		}
 		if (isset($_POST['social_share_link'])) {
-			$value = $_POST['social_share_link'];
-			update_option('social_share_link', $value);
+			$value = sanitize_text_field($_POST['social_share_link']);
+			if(is_numeric($value )) {
+				update_option('social_share_link', $value);
+			} else {
+				wp_die( 'Invalid Phone Number' );
+			}
 		}
 		if (isset($_POST['social_share_msg'])) {
-			$msg = $_POST['social_share_msg'];
-			update_option('social_share_msg', $msg);
+			$msg =sanitize_text_field($_POST['social_share_msg']);
+			if($msg != null){
+				update_option('social_share_msg', $msg);
+			}
+			else{
+				wp_die( 'Invalid Phone Msg' );
+			}
+			
 		}
 	
 		$value = get_option('social_share_link', '');
@@ -200,16 +210,16 @@ class Modern_Floating_Social_Share_Run{
 		<h1>Modern Floating Social Share Settings</h1>
 
 		<form method="POST">
-			<label for="social_share_link">FLoating Social Share whatsapp Number Format : +Countrycode Number eg : +974 123123</label><br />
-			<input type="text" name="social_share_link" id="social_share_link" value="<?php echo $value; ?>" placeholder="+974">
-			<input type="text" name="social_share_msg" id="social_share_msg" value="<?php echo $msg; ?>" placeholder="Your Message">
+			<label for="social_share_link">FLoating Social Share whatsapp Number Format : Phone Number including Country code without '+' and spaces </label><br />
+			<input type="text" name="social_share_link" id="social_share_link" value="<?php echo esc_attr($value); ?>" placeholder="+974">
+			<input type="text" name="social_share_msg" id="social_share_msg" value="<?php echo esc_attr($msg); ?>" placeholder="Your Message">
 
 			<input type="submit" value="Save" class="button button-primary button-large">
 		</form>
 
 		<?php
-		echo '<div class="wrap">';
-		echo '<p>This plugin is in very early stage. we will  update more functionalities to this.</p>';
-		echo '</div>';
+		echo esc_html('<div class="wrap">');
+		echo esc_html('<p>This plugin is in very early stage. we will  update more functionalities to this.</p>');
+		echo esc_html('</div>');
 	}
 }
